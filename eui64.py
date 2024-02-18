@@ -6,13 +6,14 @@ import datetime
 import hashlib
 
 def float2fixed(value, precision=32):
-    m = re.search(r'(?P<sign>[-+])?0x(?P<integer>[0-9a-f]+)(\.(?P<fraction>[0-9a-f]+))?(p(?P<exponent>[-+0-9]+))?', float(value).hex(), re.IGNORECASE)
-    if m is None:
-        return value
-    exponent = int(m.group('exponent'))
-    if 0 <= exponent:
-        return
-    return '{:0{exponent}x}{}'.format(int(m.group('integer'), base=16), m.group('fraction'), exponent=-exponent)[0:precision//4]
+    if 1.0 <= value:
+        raise Exception('Invalid value')
+    
+    result = ''
+    while len(result) < precision//4:
+        n, value = divmod(value * 16, 1)
+        result += '{:x}'.format(int(n))
+    return result
 
 class MacAddress(object):
     def __init__(self, value):
