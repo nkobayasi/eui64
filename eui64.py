@@ -6,14 +6,13 @@ import datetime
 import hashlib
 
 def float2fixed(value, precision=32):
-    if 1.0 <= value:
-        raise Exception('Invalid value')
-    
-    result = ''
-    while len(result) < precision//4:
+    n, value = divmod(value, 1)
+    int_part = '{:x}'.format(int(n))
+    float_part = ''
+    while len(float_part) < precision//4:
         n, value = divmod(value * 16, 1)
-        result += '{:x}'.format(int(n))
-    return result
+        float_part += '{:x}'.format(int(n))
+    return float_part
 
 class MacAddress(object):
     def __init__(self, value):
