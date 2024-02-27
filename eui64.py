@@ -202,7 +202,7 @@ def main():
     print(hex(macaddr.modified_eui64))
     print(hex(macaddr.eui64))
     ula = UniqueLocalIPv6UnicastAddress(macaddr=macaddr)
-    print(ula._string())
+    print(ula._stringify())
     print(ula._compress())
     print(ula)
     now = datetime.datetime.now(tz=datetime.timezone.utc)
