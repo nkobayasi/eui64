@@ -139,7 +139,7 @@ class UniqueLocalIPv6UnicastAddress(object):
             hextets.append('%x' % int(hex_str[x:x+4], 16))
         return hextets
 
-    def _string(self):
+    def _stringify(self):
         return ':'.join(self.hextets)
 
     def _compress(self):
