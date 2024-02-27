@@ -149,6 +149,8 @@ class UniqueLocalIPv6UnicastAddress(object):
         return '%s/64' % self._compress()
     
     def __init__(self, macaddr, subnet=1):
+        if not isinstance(macaddr, MacAddress):
+            macaddr = MacAddress(macaddr)
         self.macaddr = macaddr
         self._subnetId = subnet
 
