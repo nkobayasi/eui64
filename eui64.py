@@ -148,8 +148,9 @@ class UniqueLocalIPv6UnicastAddress(object):
     def __str__(self):
         return '%s/64' % self._compress()
     
-    def __init__(self, macaddr):
+    def __init__(self, macaddr, subnet=1):
         self.macaddr = macaddr
+        self._subnetId = subnet
 
     @property
     def value(self):
@@ -187,7 +188,7 @@ class UniqueLocalIPv6UnicastAddress(object):
 
     @property
     def subnetId(self):
-        return 1
+        return self._subnetId
 
 UniqueLocalAddress = UniqueLocalIPv6UnicastAddress
 ULA = UniqueLocalIPv6UnicastAddress
