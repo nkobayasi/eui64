@@ -207,6 +207,7 @@ def main():
     ula = UniqueLocalIPv6UnicastAddress(macaddr=macaddr)
     print(ula._stringify())
     print(ula._compress())
+    print(ula._hextets(ula.value))
     print(ula)
     now = datetime.datetime.now(tz=datetime.timezone.utc)
     epoch = int(now.timestamp())
