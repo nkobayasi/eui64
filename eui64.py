@@ -131,9 +131,9 @@ class UniqueLocalIPv6UnicastAddress(object):
 
     @property
     def hextets(self):
-        #print(self._hextets(self._value))
-        #return self._hextets(self._value)
-        hex_str = '%032x' % self._value
+        #print(self._hextets(self.value))
+        #return self._hextets(self.value)
+        hex_str = '%032x' % self.value
         hextets = []
         for x in range(0, 32, 4):
             hextets.append('%x' % int(hex_str[x:x+4], 16))
@@ -152,7 +152,7 @@ class UniqueLocalIPv6UnicastAddress(object):
         self.macaddr = macaddr
 
     @property
-    def _value(self):
+    def value(self):
         return (self.prefix | self.L) << 120 | self.globalId << 80 | self.subnetId << 64
 
     @property
