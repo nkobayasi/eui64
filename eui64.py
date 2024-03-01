@@ -6,13 +6,13 @@ import datetime
 import hashlib
 
 def float2fixed(value, precision=32):
-    m = re.search(r'(?P<sign>[-+])?0x(?P<integer>[0-9a-f]+)(\.(?P<fraction>[0-9a-f]+))?(p(?P<exponent>[-+0-9]+))?', float(value).hex(), re.IGNORECASE)
-    if m is None:
-        return value
-    exponent = int(m.group('exponent'))
-    if 0 <= exponent:
-        return
-    return '{:0{exponent}x}{}'.format(int(m.group('integer'), base=16), m.group('fraction'), exponent=-exponent)[0:precision//4]
+    n, value = divmod(value, 1)
+    int_part = '{:x}'.format(int(n))
+    float_part = ''
+    while len(float_part) < precision//4:
+        n, value = divmod(value * 16, 1)
+        float_part += '{:x}'.format(int(n))
+    return float_part
 
 class MacAddress(object):
     def __init__(self, value):
@@ -131,15 +131,15 @@ class UniqueLocalIPv6UnicastAddress(object):
 
     @property
     def hextets(self):
-        #print(self._hextets(self._value))
-        #return self._hextets(self._value)
-        hex_str = '%032x' % self._value
+        #print(self._hextets(self.value))
+        #return self._hextets(self.value)
+        hex_str = '%032x' % self.value
         hextets = []
         for x in range(0, 32, 4):
             hextets.append('%x' % int(hex_str[x:x+4], 16))
         return hextets
 
-    def _string(self):
+    def _stringify(self):
         return ':'.join(self.hextets)
 
     def _compress(self):
@@ -148,11 +148,14 @@ class UniqueLocalIPv6UnicastAddress(object):
     def __str__(self):
         return '%s/64' % self._compress()
     
-    def __init__(self, macaddr):
+    def __init__(self, macaddr, subnet=1):
+        if not isinstance(macaddr, MacAddress):
+            macaddr = MacAddress(macaddr)
         self.macaddr = macaddr
+        self._subnetId = subnet
 
     @property
-    def _value(self):
+    def value(self):
         return (self.prefix | self.L) << 120 | self.globalId << 80 | self.subnetId << 64
 
     @property
@@ -187,7 +190,7 @@ class UniqueLocalIPv6UnicastAddress(object):
 
     @property
     def subnetId(self):
-        return 1
+        return self._subnetId
 
 UniqueLocalAddress = UniqueLocalIPv6UnicastAddress
 ULA = UniqueLocalIPv6UnicastAddress
@@ -202,8 +205,9 @@ def main():
     print(hex(macaddr.modified_eui64))
     print(hex(macaddr.eui64))
     ula = UniqueLocalIPv6UnicastAddress(macaddr=macaddr)
-    print(ula._string())
+    print(ula._stringify())
     print(ula._compress())
+    print(ula._hextets(ula.value))
     print(ula)
     now = datetime.datetime.now(tz=datetime.timezone.utc)
     epoch = int(now.timestamp())
