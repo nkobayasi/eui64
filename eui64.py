@@ -5,7 +5,7 @@ import re
 import datetime
 import hashlib
 
-def float2fixed(value, precision=32):
+def fixedfloat(value, precision=32):
     n, value = divmod(value, 1)
     int_part = '{:x}'.format(int(n))
     float_part = ''
@@ -181,7 +181,7 @@ class UniqueLocalIPv6UnicastAddress(object):
         #sha1.update('{:08x}{}'.format(epoch, float2fixed(microsecond / 1000000.0)).decode('hex'))
         #sha1.update('{:08x}{:08x}'.format(epoch, microsecond).decode('hex'))
         #sha1.update('{:08x}{:08x}'.format(epoch, 0).decode('hex')) # treat microsecond to zero
-        sha1.update(bytes.fromhex('{:08x}{}'.format(ntp64_timeofday, float2fixed(ntp64_microsecond / 1000000.0))))
+        sha1.update(bytes.fromhex('{:08x}{}'.format(ntp64_timeofday, fixedfloat(ntp64_microsecond / 1000000.0))))
         sha1.update(bytes.fromhex('{:016x}'.format(eui64)))
         digest = int(sha1.hexdigest(), base=16)
         # 5. least significant 40 bits
@@ -217,8 +217,8 @@ def main():
     print('{:08x}'.format(microsecond))
     print(float(now.timestamp()).hex())
     print(float(microsecond/1000000.0).hex())
-    print(float2fixed(microsecond/1000000.0))
-    print(float2fixed(microsecond/1000000.0, 64))
+    print(fixedfloat(microsecond/1000000.0))
+    print(fixedfloat(microsecond/1000000.0, 64))
 
 if __name__ == '__main__':
     main()

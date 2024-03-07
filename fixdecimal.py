@@ -4,7 +4,16 @@
 import re
 import datetime
 
-def float2fixed(value, precision=32):
+def fixedfloat(value, precision=32):
+    n, value = divmod(value, 1)
+    int_part = '{:x}'.format(int(n))
+    float_part = ''
+    while len(float_part) < precision//4:
+        n, value = divmod(value * 16, 1)
+        float_part += '{:x}'.format(int(n))
+    return float_part
+
+def float2hex(value, precision=32):
     m = re.search(r'(?P<sign>[-+])?0x(?P<integer>[0-9a-f]+)(\.(?P<fraction>[0-9a-f]+))?(p(?P<exponent>[-+0-9]+))?', float(value).hex(), re.IGNORECASE)
     if m is None:
         return value
@@ -21,7 +30,7 @@ def main():
     print('{:08x}'.format(epoch))
     print(microsecond)
     print(microsecond.hex())
-    print(fixeddecimal(microsecond))
+    print(float2hex(microsecond))
 
 if __name__ == '__main__':
     main()
