@@ -4,8 +4,9 @@
 import re
 import datetime
 import hashlib
+import ipaddress
 
-def float2fixed(value, precision=32):
+def fixedfloat(value, precision=32):
     n, value = divmod(value, 1)
     int_part = '{:x}'.format(int(n))
     float_part = ''
@@ -91,62 +92,11 @@ class MacAddress(object):
 #    prefix.
 
 class UniqueLocalIPv6UnicastAddress(object):
-    def _compress_hextets(self, hextets):
-        best_doublecolon_start = -1
-        best_doublecolon_len = 0
-        doublecolon_start = -1
-        doublecolon_len = 0
-        for index in range(len(hextets)):
-            if hextets[index] == '0':
-                doublecolon_len += 1
-                if doublecolon_start == -1:
-                    # Start of a sequence of zeros.
-                    doublecolon_start = index
-                if doublecolon_len > best_doublecolon_len:
-                    # This is the longest sequence of zeros so far.
-                    best_doublecolon_len = doublecolon_len
-                    best_doublecolon_start = doublecolon_start
-            else:
-                doublecolon_len = 0
-                doublecolon_start = -1
-
-        if best_doublecolon_len > 1:
-            best_doublecolon_end = (best_doublecolon_start +
-                                    best_doublecolon_len)
-            # For zeros at the end of the address.
-            if best_doublecolon_end == len(hextets):
-                hextets += ['']
-            hextets[best_doublecolon_start:best_doublecolon_end] = ['']
-            # For zeros at the beginning of the address.
-            if best_doublecolon_start == 0:
-                hextets = [''] + hextets
-
-        return hextets
-
-    def _hextets(self, value):
-        hextets = []
-        for _ in range(128 - 16, 0, -16):
-            hextets.append('%x' % (value >> _ & 0xffff))
-        return hextets
-
-    @property
-    def hextets(self):
-        #print(self._hextets(self.value))
-        #return self._hextets(self.value)
-        hex_str = '%032x' % self.value
-        hextets = []
-        for x in range(0, 32, 4):
-            hextets.append('%x' % int(hex_str[x:x+4], 16))
-        return hextets
-
     def _stringify(self):
-        return ':'.join(self.hextets)
-
-    def _compress(self):
-        return ':'.join(self._compress_hextets(self.hextets))
+        return str(ipaddress.ip_address(self.value))
 
     def __str__(self):
-        return '%s/64' % self._compress()
+        return str(ipaddress.ip_interface('%s/64' % self._stringify()))
     
     def __init__(self, macaddr, subnet=1):
         if not isinstance(macaddr, MacAddress):
@@ -181,7 +131,7 @@ class UniqueLocalIPv6UnicastAddress(object):
         #sha1.update('{:08x}{}'.format(epoch, float2fixed(microsecond / 1000000.0)).decode('hex'))
         #sha1.update('{:08x}{:08x}'.format(epoch, microsecond).decode('hex'))
         #sha1.update('{:08x}{:08x}'.format(epoch, 0).decode('hex')) # treat microsecond to zero
-        sha1.update(bytes.fromhex('{:08x}{}'.format(ntp64_timeofday, float2fixed(ntp64_microsecond / 1000000.0))))
+        sha1.update(bytes.fromhex('{:08x}{}'.format(ntp64_timeofday, fixedfloat(ntp64_microsecond / 1000000.0))))
         sha1.update(bytes.fromhex('{:016x}'.format(eui64)))
         digest = int(sha1.hexdigest(), base=16)
         # 5. least significant 40 bits
@@ -205,9 +155,6 @@ def main():
     print(hex(macaddr.modified_eui64))
     print(hex(macaddr.eui64))
     ula = UniqueLocalIPv6UnicastAddress(macaddr=macaddr)
-    print(ula._stringify())
-    print(ula._compress())
-    print(ula._hextets(ula.value))
     print(ula)
     now = datetime.datetime.now(tz=datetime.timezone.utc)
     epoch = int(now.timestamp())
@@ -217,8 +164,8 @@ def main():
     print('{:08x}'.format(microsecond))
     print(float(now.timestamp()).hex())
     print(float(microsecond/1000000.0).hex())
-    print(float2fixed(microsecond/1000000.0))
-    print(float2fixed(microsecond/1000000.0, 64))
+    print(fixedfloat(microsecond/1000000.0))
+    print(fixedfloat(microsecond/1000000.0, 64))
 
 if __name__ == '__main__':
     main()
