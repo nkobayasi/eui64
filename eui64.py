@@ -92,17 +92,22 @@ class MacAddress(object):
 #    prefix.
 
 class UniqueLocalIPv6UnicastAddress(object):
-    def _stringify(self):
-        return str(ipaddress.ip_address(self.value))
-
-    def __str__(self):
-        return str(ipaddress.ip_interface('%s/64' % self._stringify()))
-    
     def __init__(self, macaddr, subnet=1):
         if not isinstance(macaddr, MacAddress):
             macaddr = MacAddress(macaddr)
         self.macaddr = macaddr
         self._subnetId = subnet
+    
+    @property
+    def address(self):
+        return ipaddress.ip_address(self.value)
+
+    @property
+    def interface(self):
+        return ipaddress.ip_interface('%s/64' % self.address)
+
+    def __str__(self):
+        return str(self.interface)
 
     @property
     def value(self):
@@ -128,7 +133,7 @@ class UniqueLocalIPv6UnicastAddress(object):
         # 3. Concatenate the time of day with EUI-64 identifier in order
         # 4. SHA-1 digest 160 bits
         sha1 = hashlib.sha1()
-        #sha1.update('{:08x}{}'.format(epoch, float2fixed(microsecond / 1000000.0)).decode('hex'))
+        #sha1.update('{:08x}{}'.format(epoch, fixedfloat(microsecond / 1000000.0)).decode('hex'))
         #sha1.update('{:08x}{:08x}'.format(epoch, microsecond).decode('hex'))
         #sha1.update('{:08x}{:08x}'.format(epoch, 0).decode('hex')) # treat microsecond to zero
         sha1.update(bytes.fromhex('{:08x}{}'.format(ntp64_timeofday, fixedfloat(ntp64_microsecond / 1000000.0))))
