@@ -26,6 +26,9 @@ def fixedfloat(value, precision=32):
         float_part += '{:x}'.format(int(n))
     return float_part
 
+def bitmask(bits):
+    return int('1' * bits, base=2)
+
 class MacAddress(object):
     def __init__(self, value):
         self.value = int(re.sub('[-:]', '', value), base=16)
@@ -35,7 +38,7 @@ class MacAddress(object):
 
     @property
     def oui24(self):
-        return self.value >> 24 & 0xffffff
+        return self.value >> 24 & bitmask(24)
     
     @property
     def eui64(self):
@@ -121,7 +124,7 @@ class UniqueLocalIPv6UnicastAddress(object):
         return str(self.subnet)
     
     def interface(self, interfaceId):
-        return ipaddress.ip_interface('%s/128' % ipaddress.ip_address(self.value | (interfaceId & 0xffffffffffffffff)))
+        return ipaddress.ip_interface('%s/128' % ipaddress.ip_address(self.value | (interfaceId & bitmask(64))))
 
     @property
     def value(self):
@@ -156,11 +159,11 @@ class UniqueLocalIPv6UnicastAddress(object):
         digest = int(sha1.hexdigest(), base=16)
         # 5. least significant 40 bits
         #return eui64 & 0xffffffffff
-        return digest & 0xffffffffff
+        return digest & bitmask(40)
 
     @property
     def subnetId(self):
-        return self._subnetId & 0xffff
+        return self._subnetId & bitmask(16)
 
 UniqueLocalAddress = UniqueLocalIPv6UnicastAddress
 ULA = UniqueLocalIPv6UnicastAddress
