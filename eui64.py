@@ -121,7 +121,7 @@ class UniqueLocalIPv6UnicastAddress(object):
         return str(self.subnet)
     
     def interface(self, interfaceId):
-        return ipaddress.ip_interface('%s/128' % ipaddress.ip_address(self.value | (interfaceId & 0xffffffff)))
+        return ipaddress.ip_interface('%s/128' % ipaddress.ip_address(self.value | (interfaceId & 0xffffffffffffffff)))
 
     @property
     def value(self):
@@ -160,7 +160,7 @@ class UniqueLocalIPv6UnicastAddress(object):
 
     @property
     def subnetId(self):
-        return self._subnetId
+        return self._subnetId & 0xffff
 
 UniqueLocalAddress = UniqueLocalIPv6UnicastAddress
 ULA = UniqueLocalIPv6UnicastAddress
