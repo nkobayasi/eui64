@@ -27,7 +27,8 @@ def fixedfloat(value, precision=32):
     return float_part
 
 def bitmask(bits):
-    return int('1' * bits, base=2)
+    return (1 << bits) - 1
+    # return int('1' * bits, base=2)
 
 class MacAddress(object):
     def __init__(self, value):
