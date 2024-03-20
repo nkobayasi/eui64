@@ -1,10 +1,21 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from functools import wraps
 import re
 import datetime
 import hashlib
 import ipaddress
+
+def memoized(func):
+    @wraps(func)
+    def closure(*args, **kwargs):
+        cls = args[0]
+        attrname = '_memoized_{0}'.format(func.__name__)
+        if not hasattr(cls, attrname):
+            setattr(cls, attrname, func(*args, **kwargs))
+        return getattr(cls, attrname)
+    return closure
 
 def fixedfloat(value, precision=32):
     n, value = divmod(value, 1)
@@ -125,6 +136,7 @@ class UniqueLocalIPv6UnicastAddress(object):
         return 0x01
 
     @property
+    @memoized
     def globalId(self):
         # 1. current time of day in 64-bit NTP
         now = datetime.datetime.now(tz=datetime.timezone.utc)
@@ -164,6 +176,7 @@ def main():
     print(hex(macaddr.eui64))
     ula = UniqueLocalIPv6UnicastAddress(macaddr=macaddr)
     print(ula)
+    print(ula.interface(1))
     now = datetime.datetime.now(tz=datetime.timezone.utc)
     epoch = int(now.timestamp())
     microsecond = int(now.microsecond)
