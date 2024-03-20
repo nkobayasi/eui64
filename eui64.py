@@ -108,6 +108,9 @@ class UniqueLocalIPv6UnicastAddress(object):
 
     def __str__(self):
         return str(self.subnet)
+    
+    def interface(self, interfaceId):
+        return ipaddress.ip_interface('%s/128' % ipaddress.ip_address(self.value | (interfaceId & 0xffffffff)))
 
     @property
     def value(self):
