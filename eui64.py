@@ -103,11 +103,11 @@ class UniqueLocalIPv6UnicastAddress(object):
         return ipaddress.ip_address(self.value)
 
     @property
-    def interface(self):
+    def subnet(self):
         return ipaddress.ip_interface('%s/64' % self.address)
 
     def __str__(self):
-        return str(self.interface)
+        return str(self.subnet)
 
     @property
     def value(self):
