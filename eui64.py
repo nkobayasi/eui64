@@ -32,7 +32,7 @@ def bitmask(bits):
 
 class MacAddress(object):
     def __init__(self, value):
-        self.value = int(re.sub('[-:]', '', value), base=16)
+        self.value = int(re.sub(r'[-:]', '', value), base=16)
 
     def octets(self, index):
         return self.value >> (40 - (index - 1) * 8) & 0xff
